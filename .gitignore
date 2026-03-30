@@ -52,8 +52,16 @@ frontend/.yarn/berry/cache
 *.sublime-workspace
 *.code-workspace
 
-# Claude Code (local settings only)
-.claude/settings.local.json
+# Claude Code
+.claude/
+
+# Internal development files
+CLAUDE.md
+TODO.md
+dev.sh
+Makefile
+docs/
+scripts/bump-agent-version.sh
 
 # OS
 .DS_Store
