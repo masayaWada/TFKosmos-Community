@@ -1,0 +1,10 @@
+resource "aws_iam_user_group_membership" "{{ resource_name }}" {
+  user = aws_iam_user.{{ user_resource_name }}.name
+
+  groups = [
+{% for group_resource_name in group_resource_names %}
+    aws_iam_group.{{ group_resource_name }}.name{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+}
+

@@ -1,0 +1,263 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., v0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  RELEASE_VERSION: ${{ github.event.inputs.version || github.ref_name }}
+
+jobs:
+  validate:
+    name: Validate Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate version format
+        run: |
+          VERSION="${{ env.RELEASE_VERSION }}"
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "::error::Invalid version format: $VERSION (expected v*.*.*)"
+            exit 1
+          fi
+          echo "Version: $VERSION"
+
+  build-backend:
+    name: Build Backend (${{ matrix.target }})
+    needs: validate
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact: tfkosmos
+          - os: macos-14
+            target: x86_64-apple-darwin
+            artifact: tfkosmos
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: tfkosmos
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: tfkosmos.exe
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2.9.1
+        with:
+          workspaces: backend
+          prefix-key: release
+
+      - name: Build backend (Pro Edition)
+        run: cd backend && cargo build --release --no-default-features --features pro --target ${{ matrix.target }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: tfkosmos-${{ matrix.target }}
+          path: backend/target/${{ matrix.target }}/release/${{ matrix.artifact }}
+
+  build-tauri:
+    name: Build Tauri (${{ matrix.os }})
+    needs: build-backend
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: universal-apple-darwin
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Install Tauri dependencies
+        run: cd deployment && npm ci
+
+      - name: Build frontend
+        run: cd frontend && npm run build
+
+      - name: Download backend binary
+        if: runner.os != 'macOS'
+        uses: actions/download-artifact@v8
+        with:
+          name: tfkosmos-${{ matrix.target }}
+          path: deployment/src-tauri/binaries/
+
+      - name: Download backend binaries (macOS universal)
+        if: runner.os == 'macOS'
+        uses: actions/download-artifact@v8
+        with:
+          pattern: tfkosmos-*-apple-darwin
+          path: deployment/src-tauri/binaries/
+          merge-multiple: false
+
+      - name: Rename sidecar binaries (macOS universal)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p deployment/src-tauri/binaries/
+          mv deployment/src-tauri/binaries/tfkosmos-aarch64-apple-darwin/tfkosmos deployment/src-tauri/binaries/tfkosmos-backend-aarch64-apple-darwin
+          mv deployment/src-tauri/binaries/tfkosmos-x86_64-apple-darwin/tfkosmos deployment/src-tauri/binaries/tfkosmos-backend-x86_64-apple-darwin
+          chmod +x deployment/src-tauri/binaries/tfkosmos-backend-aarch64-apple-darwin
+          chmod +x deployment/src-tauri/binaries/tfkosmos-backend-x86_64-apple-darwin
+          lipo -create \
+            deployment/src-tauri/binaries/tfkosmos-backend-aarch64-apple-darwin \
+            deployment/src-tauri/binaries/tfkosmos-backend-x86_64-apple-darwin \
+            -output deployment/src-tauri/binaries/tfkosmos-backend-universal-apple-darwin
+          chmod +x deployment/src-tauri/binaries/tfkosmos-backend-universal-apple-darwin
+          rm -rf deployment/src-tauri/binaries/tfkosmos-aarch64-apple-darwin deployment/src-tauri/binaries/tfkosmos-x86_64-apple-darwin
+
+      - name: Rename sidecar binary (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mv deployment/src-tauri/binaries/tfkosmos deployment/src-tauri/binaries/tfkosmos-backend-${{ matrix.target }}
+          chmod +x deployment/src-tauri/binaries/tfkosmos-backend-${{ matrix.target }}
+
+      - name: Rename sidecar binary (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Move-Item deployment/src-tauri/binaries/tfkosmos.exe deployment/src-tauri/binaries/tfkosmos-backend-${{ matrix.target }}.exe
+
+      - name: Verify sidecar binary
+        run: ls -la deployment/src-tauri/binaries/
+        shell: bash
+
+      - name: Sync version in tauri.conf.json
+        shell: bash
+        run: |
+          VERSION="${{ env.RELEASE_VERSION }}"
+          SEMVER="${VERSION#v}"
+          cd deployment/src-tauri
+          sed -i.bak "s/\"version\": \"[^\"]*\"/\"version\": \"${SEMVER}\"/" tauri.conf.json
+          rm -f tauri.conf.json.bak
+          echo "Updated tauri.conf.json version to ${SEMVER}"
+          grep '"version"' tauri.conf.json
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: deployment
+          args: ${{ runner.os == 'macOS' && '--target universal-apple-darwin' || '' }}
+          tagName: ${{ env.RELEASE_VERSION }}
+          releaseName: 'TFKosmos ${{ env.RELEASE_VERSION }}'
+          releaseBody: |
+            ## Downloads
+
+            | Platform | Type | File |
+            |----------|------|------|
+            | macOS (Universal) | Installer | [TFKosmos_${{ env.RELEASE_VERSION }}_universal.dmg](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/TFKosmos_${{ env.RELEASE_VERSION }}_universal.dmg) |
+            | Windows | Installer (NSIS) | [TFKosmos_${{ env.RELEASE_VERSION }}_x64-setup.exe](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/TFKosmos_${{ env.RELEASE_VERSION }}_x64-setup.exe) |
+            | Windows | Installer (MSI) | [TFKosmos_${{ env.RELEASE_VERSION }}_x64_en-US.msi](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/TFKosmos_${{ env.RELEASE_VERSION }}_x64_en-US.msi) |
+            | Linux (x64) | Installer (deb) | [TFKosmos_${{ env.RELEASE_VERSION }}_amd64.deb](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/TFKosmos_${{ env.RELEASE_VERSION }}_amd64.deb) |
+            | Linux (x64) | Installer (AppImage) | [TFKosmos_${{ env.RELEASE_VERSION }}_amd64.AppImage](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/TFKosmos_${{ env.RELEASE_VERSION }}_amd64.AppImage) |
+            | macOS (ARM) | Backend Binary | [tfkosmos-backend-aarch64-apple-darwin](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/tfkosmos-backend-aarch64-apple-darwin) |
+            | macOS (Intel) | Backend Binary | [tfkosmos-backend-x86_64-apple-darwin](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/tfkosmos-backend-x86_64-apple-darwin) |
+            | Linux (x64) | Backend Binary | [tfkosmos-backend-x86_64-unknown-linux-gnu](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/tfkosmos-backend-x86_64-unknown-linux-gnu) |
+            | Windows (x64) | Backend Binary | [tfkosmos-backend-x86_64-pc-windows-msvc.exe](https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/tfkosmos-backend-x86_64-pc-windows-msvc.exe) |
+
+            See the [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+          releaseDraft: true
+          prerelease: false
+
+      - name: Debug - List Tauri build artifacts
+        if: always()
+        shell: bash
+        run: |
+          echo "=== Tauri bundle output ==="
+          find deployment/src-tauri/target/release/bundle -type f 2>/dev/null || echo "No bundle directory found"
+          echo ""
+          echo "=== Release directory ==="
+          find deployment/src-tauri/target/release -maxdepth 1 -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.app" -o -name "*.deb" -o -name "*.AppImage" 2>/dev/null || echo "No release artifacts found"
+
+  upload-backend-binaries:
+    name: Upload Backend Binaries to Release
+    needs: [build-backend, build-tauri]
+    runs-on: ubuntu-latest
+    if: always() && needs.build-backend.result == 'success'
+
+    steps:
+      - name: Download backend artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: tfkosmos-*
+          path: artifacts/
+
+      - name: Prepare backend binaries for upload
+        run: |
+          mkdir -p upload/
+          for dir in artifacts/tfkosmos-*/; do
+            target=$(basename "$dir" | sed 's/^tfkosmos-//')
+            for file in "$dir"*; do
+              filename=$(basename "$file")
+              if [[ "$filename" == *.exe ]]; then
+                cp "$file" "upload/tfkosmos-backend-${target}.exe"
+              else
+                cp "$file" "upload/tfkosmos-backend-${target}"
+              fi
+            done
+          done
+          echo "=== Files to upload ==="
+          ls -la upload/
+
+      - name: Upload backend binaries to existing release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          draft: true
+          files: |
+            upload/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

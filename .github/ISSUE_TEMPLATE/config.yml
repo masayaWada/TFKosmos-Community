@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ドキュメント
+    url: https://github.com/masayaWada/TFKosmos/blob/main/README.md
+    about: プロジェクトのドキュメントを確認してください
+  - name: 開発ドキュメント
+    url: https://github.com/masayaWada/TFKosmos/blob/main/docs/README.md
+    about: 開発ドキュメントを確認してください

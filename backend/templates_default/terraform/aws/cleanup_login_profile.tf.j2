@@ -1,0 +1,5 @@
+resource "aws_iam_user_login_profile" "{{ resource_name }}" {
+  user                    = aws_iam_user.{{ user_resource_name }}.name
+  password_reset_required = {{ login_profile.password_reset_required | lower }}
+}
+

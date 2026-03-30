@@ -1,0 +1,12 @@
+resource "aws_internet_gateway" "{{ resource_name }}" {
+{% if igw.attachments and igw.attachments | length > 0 %}
+  vpc_id = "{{ igw.attachments[0].vpc_id }}"
+{% endif %}
+{% if igw.tags %}
+  tags = {
+{% for key in igw.tags %}
+    "{{ key }}" = "{{ igw.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}

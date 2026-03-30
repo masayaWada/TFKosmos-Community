@@ -1,0 +1,21 @@
+resource "azurerm_role_definition" "{{ resource_name }}" {
+  name        = "{{ role_definition.role_name }}"
+  scope       = "{{ role_definition.scope }}"
+  description = "{{ role_definition.description }}"
+
+  permissions {
+{% for permission in role_definition.permissions %}
+    actions     = {{ permission.actions | tojson }}
+    not_actions = {{ permission.not_actions | tojson }}
+{% if permission.data_actions %}
+    data_actions = {{ permission.data_actions | tojson }}
+{% endif %}
+{% if permission.not_data_actions %}
+    not_data_actions = {{ permission.not_data_actions | tojson }}
+{% endif %}
+{% endfor %}
+  }
+
+  assignable_scopes = {{ role_definition.assignable_scopes | tojson }}
+}
+

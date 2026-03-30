@@ -1,0 +1,56 @@
+resource "aws_network_acl" "{{ resource_name }}" {
+  vpc_id = "{{ nacl.vpc_id }}"
+
+{% if nacl.associations %}
+  subnet_ids = [
+{% for subnet_id in nacl.associations %}
+    "{{ subnet_id }}",
+{% endfor %}
+  ]
+{% endif %}
+
+{% if nacl.entries %}
+{% for entry in nacl.entries %}
+{% if not entry.egress %}
+  ingress {
+    protocol   = "{{ entry.protocol }}"
+    rule_no    = {{ entry.rule_number }}
+    action     = "{{ entry.rule_action }}"
+{% if entry.cidr_block %}
+    cidr_block = "{{ entry.cidr_block }}"
+{% endif %}
+{% if entry.from_port is defined %}
+    from_port  = {{ entry.from_port }}
+{% endif %}
+{% if entry.to_port is defined %}
+    to_port    = {{ entry.to_port }}
+{% endif %}
+  }
+{% else %}
+  egress {
+    protocol   = "{{ entry.protocol }}"
+    rule_no    = {{ entry.rule_number }}
+    action     = "{{ entry.rule_action }}"
+{% if entry.cidr_block %}
+    cidr_block = "{{ entry.cidr_block }}"
+{% endif %}
+{% if entry.from_port is defined %}
+    from_port  = {{ entry.from_port }}
+{% endif %}
+{% if entry.to_port is defined %}
+    to_port    = {{ entry.to_port }}
+{% endif %}
+  }
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if nacl.tags %}
+  tags = {
+{% for key in nacl.tags %}
+    "{{ key }}" = "{{ nacl.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

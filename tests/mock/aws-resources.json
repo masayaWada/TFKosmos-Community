@@ -1,0 +1,129 @@
+{
+  "resources": [
+    {
+      "type": "user",
+      "name": "admin-user",
+      "arn": "arn:aws:iam::123456789012:user/admin-user",
+      "path": "/",
+      "user_id": "AIDACKCEVSQ6C2EXAMPLE",
+      "create_date": "2024-01-15T10:30:00Z",
+      "password_last_used": "2024-12-01T08:15:00Z",
+      "tags": [
+        {
+          "key": "Environment",
+          "value": "Production"
+        }
+      ],
+      "access_keys": [
+        {
+          "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+          "status": "Active",
+          "create_date": "2024-01-15T10:30:00Z"
+        }
+      ],
+      "mfa_devices": [],
+      "login_profile": {
+        "create_date": "2024-01-15T10:30:00Z",
+        "password_reset_required": false
+      }
+    },
+    {
+      "type": "user",
+      "name": "developer-user",
+      "arn": "arn:aws:iam::123456789012:user/developer-user",
+      "path": "/developers/",
+      "user_id": "AIDACKCEVSQ6C3EXAMPLE",
+      "create_date": "2024-02-20T14:00:00Z",
+      "tags": [],
+      "access_keys": [],
+      "mfa_devices": [
+        {
+          "serial_number": "arn:aws:iam::123456789012:mfa/developer-user",
+          "enable_date": "2024-02-20T14:30:00Z"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "Administrators",
+      "arn": "arn:aws:iam::123456789012:group/Administrators",
+      "path": "/",
+      "group_id": "AGPACKCEVSQ6C2EXAMPLE",
+      "create_date": "2024-01-10T09:00:00Z"
+    },
+    {
+      "type": "group",
+      "name": "Developers",
+      "arn": "arn:aws:iam::123456789012:group/Developers",
+      "path": "/",
+      "group_id": "AGPACKCEVSQ6C3EXAMPLE",
+      "create_date": "2024-01-10T09:05:00Z"
+    },
+    {
+      "type": "role",
+      "name": "EC2-AdminRole",
+      "arn": "arn:aws:iam::123456789012:role/EC2-AdminRole",
+      "path": "/",
+      "role_id": "AROACKCEVSQ6C2EXAMPLE",
+      "create_date": "2024-01-12T11:00:00Z",
+      "assume_role_policy_document": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ec2.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+      "max_session_duration": 3600,
+      "tags": [
+        {
+          "key": "Purpose",
+          "value": "EC2 Management"
+        }
+      ]
+    },
+    {
+      "type": "role",
+      "name": "Lambda-ExecutionRole",
+      "arn": "arn:aws:iam::123456789012:role/Lambda-ExecutionRole",
+      "path": "/service-role/",
+      "role_id": "AROACKCEVSQ6C4EXAMPLE",
+      "create_date": "2024-03-01T16:00:00Z",
+      "assume_role_policy_document": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+      "max_session_duration": 3600
+    },
+    {
+      "type": "policy",
+      "name": "CustomAdminPolicy",
+      "arn": "arn:aws:iam::123456789012:policy/CustomAdminPolicy",
+      "path": "/",
+      "policy_id": "ANPACKCEVSQ6C2EXAMPLE",
+      "create_date": "2024-01-20T13:00:00Z",
+      "update_date": "2024-11-15T10:00:00Z",
+      "attachment_count": 2,
+      "permissions_boundary_usage_count": 0,
+      "is_attachable": true,
+      "description": "カスタム管理者ポリシー",
+      "default_version_id": "v2"
+    },
+    {
+      "type": "attachment",
+      "entity_type": "User",
+      "entity_name": "admin-user",
+      "policy_arn": "arn:aws:iam::aws:policy/AdministratorAccess",
+      "policy_name": "AdministratorAccess"
+    },
+    {
+      "type": "attachment",
+      "entity_type": "Group",
+      "entity_name": "Administrators",
+      "policy_arn": "arn:aws:iam::123456789012:policy/CustomAdminPolicy",
+      "policy_name": "CustomAdminPolicy"
+    },
+    {
+      "type": "attachment",
+      "entity_type": "Role",
+      "entity_name": "EC2-AdminRole",
+      "policy_arn": "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
+      "policy_name": "AmazonEC2FullAccess"
+    }
+  ],
+  "total": 10,
+  "page": 1,
+  "page_size": 50,
+  "total_pages": 1,
+  "provider": "aws"
+}

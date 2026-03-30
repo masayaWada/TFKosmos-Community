@@ -1,0 +1,32 @@
+resource "aws_s3_bucket_lifecycle_configuration" "{{ resource_name }}" {
+  bucket = "{{ rule.bucket }}"
+
+  rule {
+    id     = "{{ rule.id }}"
+    status = "{{ rule.status }}"
+
+{% if rule.prefix %}
+    filter {
+      prefix = "{{ rule.prefix }}"
+    }
+{% else %}
+    filter {}
+{% endif %}
+
+{% if rule.expiration_days %}
+    expiration {
+      days = {{ rule.expiration_days }}
+    }
+{% endif %}
+
+{% if rule.transition %}
+{% for t in rule.transition %}
+    transition {
+      days          = {{ t.days }}
+      storage_class = "{{ t.storage_class }}"
+    }
+{% endfor %}
+{% endif %}
+  }
+}
+

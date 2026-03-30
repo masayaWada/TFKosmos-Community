@@ -1,0 +1,47 @@
+resource "aws_lb_target_group" "{{ resource_name }}" {
+  name     = "{{ tg.name }}"
+{% if tg.port %}
+  port     = {{ tg.port }}
+{% endif %}
+{% if tg.protocol %}
+  protocol = "{{ tg.protocol }}"
+{% endif %}
+{% if tg.vpc_id %}
+  vpc_id   = "{{ tg.vpc_id }}"
+{% endif %}
+{% if tg.target_type %}
+  target_type = "{{ tg.target_type }}"
+{% endif %}
+{% if tg.health_check %}
+  health_check {
+{% if tg.health_check.path %}
+    path     = "{{ tg.health_check.path }}"
+{% endif %}
+{% if tg.health_check.port %}
+    port     = "{{ tg.health_check.port }}"
+{% endif %}
+{% if tg.health_check.protocol %}
+    protocol = "{{ tg.health_check.protocol }}"
+{% endif %}
+{% if tg.health_check.interval %}
+    interval = {{ tg.health_check.interval }}
+{% endif %}
+{% if tg.health_check.timeout %}
+    timeout  = {{ tg.health_check.timeout }}
+{% endif %}
+{% if tg.health_check.healthy_threshold %}
+    healthy_threshold   = {{ tg.health_check.healthy_threshold }}
+{% endif %}
+{% if tg.health_check.unhealthy_threshold %}
+    unhealthy_threshold = {{ tg.health_check.unhealthy_threshold }}
+{% endif %}
+  }
+{% endif %}
+{% if tg.tags %}
+  tags = {
+{% for tag in tg.tags %}
+    "{{ tag.key }}" = "{{ tag.value }}"
+{% endfor %}
+  }
+{% endif %}
+}

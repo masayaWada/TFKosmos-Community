@@ -1,0 +1,21 @@
+resource "aws_db_subnet_group" "{{ resource_name }}" {
+  name       = "{{ group.db_subnet_group_name }}"
+{% if group.description %}
+  description = "{{ group.description }}"
+{% endif %}
+{% if group.subnet_ids %}
+  subnet_ids = [
+{% for subnet_id in group.subnet_ids %}
+    "{{ subnet_id }}",
+{% endfor %}
+  ]
+{% endif %}
+{% if group.tags %}
+  tags = {
+{% for key in group.tags %}
+    "{{ key }}" = "{{ group.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

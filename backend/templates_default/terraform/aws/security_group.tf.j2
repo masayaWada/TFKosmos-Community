@@ -1,0 +1,64 @@
+resource "aws_security_group" "{{ resource_name }}" {
+  name        = "{{ sg.group_name }}"
+{% if sg.description %}
+  description = "{{ sg.description }}"
+{% endif %}
+  vpc_id      = "{{ sg.vpc_id }}"
+
+{% if sg.ingress_rules %}
+{% for rule in sg.ingress_rules %}
+  ingress {
+    protocol    = "{{ rule.protocol }}"
+{% if rule.from_port is defined %}
+    from_port   = {{ rule.from_port }}
+{% endif %}
+{% if rule.to_port is defined %}
+    to_port     = {{ rule.to_port }}
+{% endif %}
+{% if rule.cidr_blocks %}
+    cidr_blocks = [
+{% for cidr in rule.cidr_blocks %}
+      "{{ cidr }}",
+{% endfor %}
+    ]
+{% endif %}
+{% if rule.source_security_group_id %}
+    security_groups = ["{{ rule.source_security_group_id }}"]
+{% endif %}
+{% if rule.description %}
+    description = "{{ rule.description }}"
+{% endif %}
+  }
+{% endfor %}
+{% endif %}
+
+{% if sg.egress_rules %}
+{% for rule in sg.egress_rules %}
+  egress {
+    protocol    = "{{ rule.protocol }}"
+{% if rule.from_port is defined %}
+    from_port   = {{ rule.from_port }}
+{% endif %}
+{% if rule.to_port is defined %}
+    to_port     = {{ rule.to_port }}
+{% endif %}
+{% if rule.cidr_blocks %}
+    cidr_blocks = [
+{% for cidr in rule.cidr_blocks %}
+      "{{ cidr }}",
+{% endfor %}
+    ]
+{% endif %}
+  }
+{% endfor %}
+{% endif %}
+
+{% if sg.tags %}
+  tags = {
+{% for key in sg.tags %}
+    "{{ key }}" = "{{ sg.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

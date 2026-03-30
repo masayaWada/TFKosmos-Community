@@ -1,0 +1,62 @@
+resource "aws_lambda_function" "{{ resource_name }}" {
+  function_name = "{{ function.function_name }}"
+{% if function.role %}
+  role          = "{{ function.role }}"
+{% endif %}
+{% if function.runtime %}
+  runtime       = "{{ function.runtime }}"
+{% endif %}
+{% if function.handler %}
+  handler       = "{{ function.handler }}"
+{% endif %}
+{% if function.description %}
+  description   = "{{ function.description }}"
+{% endif %}
+{% if function.memory_size %}
+  memory_size   = {{ function.memory_size }}
+{% endif %}
+{% if function.timeout %}
+  timeout       = {{ function.timeout }}
+{% endif %}
+{% if function.environment %}
+  environment {
+    variables = {
+{% for key in function.environment %}
+      "{{ key }}" = "{{ function.environment[key] }}"
+{% endfor %}
+    }
+  }
+{% endif %}
+{% if function.vpc_config %}
+  vpc_config {
+{% if function.vpc_config.subnet_ids %}
+    subnet_ids = [
+{% for subnet_id in function.vpc_config.subnet_ids %}
+      "{{ subnet_id }}",
+{% endfor %}
+    ]
+{% endif %}
+{% if function.vpc_config.security_group_ids %}
+    security_group_ids = [
+{% for sg_id in function.vpc_config.security_group_ids %}
+      "{{ sg_id }}",
+{% endfor %}
+    ]
+{% endif %}
+  }
+{% endif %}
+{% if function.layers %}
+  layers = [
+{% for layer_arn in function.layers %}
+    "{{ layer_arn }}",
+{% endfor %}
+  ]
+{% endif %}
+{% if function.tags %}
+  tags = {
+{% for tag in function.tags %}
+    "{{ tag.key }}" = "{{ tag.value }}"
+{% endfor %}
+  }
+{% endif %}
+}

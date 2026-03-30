@@ -1,0 +1,30 @@
+resource "aws_lb" "{{ resource_name }}" {
+  name               = "{{ lb.name }}"
+{% if lb.type %}
+  load_balancer_type = "{{ lb.type }}"
+{% endif %}
+{% if lb.scheme %}
+  internal           = {{ "true" if lb.scheme == "internal" else "false" }}
+{% endif %}
+{% if lb.security_groups %}
+  security_groups = [
+{% for sg in lb.security_groups %}
+    "{{ sg }}",
+{% endfor %}
+  ]
+{% endif %}
+{% if lb.subnets %}
+  subnets = [
+{% for subnet in lb.subnets %}
+    "{{ subnet }}",
+{% endfor %}
+  ]
+{% endif %}
+{% if lb.tags %}
+  tags = {
+{% for tag in lb.tags %}
+    "{{ tag.key }}" = "{{ tag.value }}"
+{% endfor %}
+  }
+{% endif %}
+}

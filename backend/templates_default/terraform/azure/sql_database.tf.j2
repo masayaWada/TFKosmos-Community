@@ -1,0 +1,24 @@
+resource "azurerm_mssql_database" "{{ resource_name }}" {
+  name      = "{{ db.name }}"
+{% if db.server_name %}
+  server_id = azurerm_mssql_server.{{ db.server_name }}.id
+{% endif %}
+{% if db.sku_name %}
+  sku_name  = "{{ db.sku_name }}"
+{% endif %}
+{% if db.max_size_gb %}
+  max_size_gb = {{ db.max_size_gb }}
+{% endif %}
+{% if db.collation %}
+  collation = "{{ db.collation }}"
+{% endif %}
+
+{% if db.tags %}
+  tags = {
+{% for key in db.tags %}
+    "{{ key }}" = "{{ db.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

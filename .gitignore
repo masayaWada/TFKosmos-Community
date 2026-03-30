@@ -1,0 +1,179 @@
+# Rust / Backend
+/target/
+target/
+backend/target/
+**/*.rs.bk
+*.pdb
+/rust_out
+rust_out
+*.out
+
+# Tauri sidecar binaries
+deployment/src-tauri/binaries/
+
+# Audit logs
+backend/audit-logs/
+
+# Node.js / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.next/
+frontend/out/
+frontend/.cache/
+frontend/.parcel-cache/
+frontend/.turbo/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+frontend/.pnpm-debug.log*
+frontend/.yarn/
+frontend/.pnp.*
+frontend/.yarn/cache
+frontend/.yarn/unplugged
+frontend/.yarn/build-state.yml
+frontend/.yarn/install-state.gz
+frontend/.yarn/berry/cache
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# Claude Code (local settings only)
+.claude/settings.local.json
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# MCP configuration (contains API keys)
+.mcp.json
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+.cache/
+tmp/
+temp/
+
+# Build artifacts
+dist/
+build/
+out/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+
+# Test coverage
+coverage/
+*.lcov
+.nyc_output/
+backend/target/llvm-cov/
+frontend/coverage/
+
+# Playwright
+frontend/playwright-report/
+frontend/test-results/
+frontend/.playwright/
+frontend/screenshots/
+
+# Python (if any Python scripts remain)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+*.tfvars.json
+.terraformrc
+terraform.rc
+
+# AWS credentials (should not be committed)
+.aws/
+*.pem
+*.key
+
+# Azure credentials (should not be committed)
+.azure/
+
+# Project specific
+*.zip
+*.tar.gz
+*.tar
+*.gz
+
+# User templates (can be regenerated)
+backend/templates_user/
+templates_user/
+
+# Generated terraform output
+terraform-output/
+**/terraform-output/
+
+# Tauri build artifacts
+deployment/src-tauri/target/
+deployment/src-tauri/Cargo.lock
+
+# Root node_modules (should not exist but exclude just in case)
+/node_modules/
+node_modules/
+/package-lock.json
+
+# Temporary files
+_temp
+_oss_build

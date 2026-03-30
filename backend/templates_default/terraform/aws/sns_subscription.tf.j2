@@ -1,0 +1,9 @@
+resource "aws_sns_topic_subscription" "{{ resource_name }}" {
+  topic_arn = "{{ subscription.topic_arn }}"
+{% if subscription.protocol %}
+  protocol  = "{{ subscription.protocol }}"
+{% endif %}
+{% if subscription.endpoint %}
+  endpoint  = "{{ subscription.endpoint }}"
+{% endif %}
+}

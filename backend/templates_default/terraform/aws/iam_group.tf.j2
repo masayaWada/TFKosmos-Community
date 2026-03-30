@@ -1,0 +1,12 @@
+resource "aws_iam_group" "{{ resource_name }}" {
+  name = "{{ group.group_name }}"
+  path = "{{ group.path }}"
+{% if group.tags %}
+  tags = {
+{% for key in group.tags %}
+    "{{ key }}" = "{{ group.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

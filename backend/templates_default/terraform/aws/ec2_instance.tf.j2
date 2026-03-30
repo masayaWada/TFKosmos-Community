@@ -1,0 +1,29 @@
+resource "aws_instance" "{{ resource_name }}" {
+  ami           = "{{ instance.ami_id }}"
+  instance_type = "{{ instance.instance_type }}"
+
+{% if instance.subnet_id %}
+  subnet_id = "{{ instance.subnet_id }}"
+{% endif %}
+{% if instance.key_name %}
+  key_name = "{{ instance.key_name }}"
+{% endif %}
+{% if instance.iam_instance_profile %}
+  iam_instance_profile = "{{ instance.iam_instance_profile }}"
+{% endif %}
+{% if instance.security_groups %}
+  vpc_security_group_ids = [
+{% for sg in instance.security_groups %}
+    "{{ sg }}",
+{% endfor %}
+  ]
+{% endif %}
+{% if instance.tags %}
+  tags = {
+{% for key in instance.tags %}
+    "{{ key }}" = "{{ instance.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

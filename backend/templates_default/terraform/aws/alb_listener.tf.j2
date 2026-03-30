@@ -1,0 +1,19 @@
+resource "aws_lb_listener" "{{ resource_name }}" {
+  load_balancer_arn = "{{ listener.load_balancer_arn }}"
+{% if listener.port %}
+  port              = {{ listener.port }}
+{% endif %}
+{% if listener.protocol %}
+  protocol          = "{{ listener.protocol }}"
+{% endif %}
+{% if listener.default_actions %}
+{% for action in listener.default_actions %}
+  default_action {
+    type = "{{ action.type }}"
+{% if action.target_group_arn %}
+    target_group_arn = "{{ action.target_group_arn }}"
+{% endif %}
+  }
+{% endfor %}
+{% endif %}
+}

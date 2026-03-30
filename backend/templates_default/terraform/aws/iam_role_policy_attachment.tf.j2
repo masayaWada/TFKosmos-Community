@@ -1,0 +1,5 @@
+resource "aws_iam_role_policy_attachment" "{{ resource_name }}" {
+  role       = aws_iam_role.{{ role_resource_name }}.name
+  policy_arn = "{{ attachment.policy_arn }}"
+}
+

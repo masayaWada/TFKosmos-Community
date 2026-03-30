@@ -1,0 +1,48 @@
+resource "aws_db_instance" "{{ resource_name }}" {
+  identifier     = "{{ db.db_instance_identifier }}"
+{% if db.db_instance_class %}
+  instance_class = "{{ db.db_instance_class }}"
+{% endif %}
+{% if db.engine %}
+  engine         = "{{ db.engine }}"
+{% endif %}
+{% if db.engine_version %}
+  engine_version = "{{ db.engine_version }}"
+{% endif %}
+{% if db.allocated_storage %}
+  allocated_storage = {{ db.allocated_storage }}
+{% endif %}
+{% if db.storage_type %}
+  storage_type   = "{{ db.storage_type }}"
+{% endif %}
+{% if db.master_username %}
+  username       = "{{ db.master_username }}"
+{% endif %}
+  multi_az              = {{ db.multi_az | lower }}
+  publicly_accessible   = {{ db.publicly_accessible | lower }}
+  storage_encrypted     = {{ db.storage_encrypted | lower }}
+{% if db.db_subnet_group_name %}
+  db_subnet_group_name  = "{{ db.db_subnet_group_name }}"
+{% endif %}
+{% if db.parameter_group_name %}
+  parameter_group_name  = "{{ db.parameter_group_name }}"
+{% endif %}
+{% if db.backup_retention_period %}
+  backup_retention_period = {{ db.backup_retention_period }}
+{% endif %}
+{% if db.security_groups %}
+  vpc_security_group_ids = [
+{% for sg in db.security_groups %}
+    "{{ sg }}",
+{% endfor %}
+  ]
+{% endif %}
+{% if db.tags %}
+  tags = {
+{% for key in db.tags %}
+    "{{ key }}" = "{{ db.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

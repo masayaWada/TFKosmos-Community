@@ -1,0 +1,16 @@
+resource "aws_subnet" "{{ resource_name }}" {
+  vpc_id                  = "{{ subnet.vpc_id }}"
+  cidr_block              = "{{ subnet.cidr_block }}"
+{% if subnet.availability_zone %}
+  availability_zone       = "{{ subnet.availability_zone }}"
+{% endif %}
+  map_public_ip_on_launch = {{ subnet.map_public_ip_on_launch | lower }}
+{% if subnet.tags %}
+  tags = {
+{% for key in subnet.tags %}
+    "{{ key }}" = "{{ subnet.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

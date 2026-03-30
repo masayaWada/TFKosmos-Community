@@ -1,0 +1,13 @@
+{
+  "scan_id": "test-scan-aws-001",
+  "status": "completed",
+  "progress": 100,
+  "message": "スキャンが完了しました",
+  "summary": {
+    "users": 5,
+    "groups": 3,
+    "roles": 8,
+    "policies": 12,
+    "attachments": 15
+  }
+}

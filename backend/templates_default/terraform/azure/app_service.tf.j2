@@ -1,0 +1,18 @@
+resource "azurerm_linux_web_app" "{{ resource_name }}" {
+  name                = "{{ app.name }}"
+{% if app.resource_group %}
+  resource_group_name = "{{ app.resource_group }}"
+{% endif %}
+{% if app.location %}
+  location            = "{{ app.location }}"
+{% endif %}
+{% if app.service_plan_id %}
+  service_plan_id     = "{{ app.service_plan_id }}"
+{% endif %}
+{% if app.https_only %}
+  https_only          = {{ app.https_only }}
+{% endif %}
+
+  site_config {
+  }
+}

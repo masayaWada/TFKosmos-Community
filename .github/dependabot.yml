@@ -1,0 +1,86 @@
+version: 2
+
+updates:
+  # npm (frontend)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+
+    # PRの上限（暴走防止）
+    open-pull-requests-limit: 5
+
+    # バージョン戦略
+    versioning-strategy: increase
+
+    # ラベル付与
+    labels:
+      - "dependencies"
+      - "npm"
+
+    # コミットメッセージ
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+    # 自動マージ対象（パッチだけ）
+    allow:
+      - dependency-type: "direct"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+    # PRまとめる（重要）
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Cargo (backend - Rust)
+  - package-ecosystem: "cargo"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+
+    open-pull-requests-limit: 5
+
+    labels:
+      - "dependencies"
+      - "rust"
+
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+    # メジャーバージョンアップは無視
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+    groups:
+      actions:
+        patterns:
+          - "*"

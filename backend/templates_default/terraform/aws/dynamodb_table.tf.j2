@@ -1,0 +1,93 @@
+resource "aws_dynamodb_table" "{{ resource_name }}" {
+  name = "{{ table.table_name }}"
+{% if table.billing_mode %}
+  billing_mode = "{{ table.billing_mode }}"
+{% endif %}
+{% if table.read_capacity %}
+  read_capacity  = {{ table.read_capacity }}
+{% endif %}
+{% if table.write_capacity %}
+  write_capacity = {{ table.write_capacity }}
+{% endif %}
+
+{% if table.key_schema %}
+  hash_key  = "{{ table.key_schema[0].attribute_name }}"
+{% if table.key_schema | length > 1 %}
+  range_key = "{{ table.key_schema[1].attribute_name }}"
+{% endif %}
+{% endif %}
+
+{% if table.attribute_definitions %}
+{% for attr in table.attribute_definitions %}
+  attribute {
+    name = "{{ attr.attribute_name }}"
+    type = "{{ attr.attribute_type }}"
+  }
+{% endfor %}
+{% endif %}
+
+{% if table.global_secondary_indexes %}
+{% for gsi in table.global_secondary_indexes %}
+  global_secondary_index {
+    name            = "{{ gsi.index_name }}"
+    hash_key        = "{{ gsi.key_schema[0].attribute_name }}"
+{% if gsi.key_schema | length > 1 %}
+    range_key       = "{{ gsi.key_schema[1].attribute_name }}"
+{% endif %}
+    projection_type = "{{ gsi.projection_type }}"
+{% if gsi.non_key_attributes %}
+    non_key_attributes = [
+{% for attr in gsi.non_key_attributes %}
+      "{{ attr }}",
+{% endfor %}
+    ]
+{% endif %}
+{% if gsi.read_capacity %}
+    read_capacity  = {{ gsi.read_capacity }}
+{% endif %}
+{% if gsi.write_capacity %}
+    write_capacity = {{ gsi.write_capacity }}
+{% endif %}
+  }
+{% endfor %}
+{% endif %}
+
+{% if table.local_secondary_indexes %}
+{% for lsi in table.local_secondary_indexes %}
+  local_secondary_index {
+    name            = "{{ lsi.index_name }}"
+    range_key       = "{{ lsi.key_schema[1].attribute_name }}"
+    projection_type = "{{ lsi.projection_type }}"
+{% if lsi.non_key_attributes %}
+    non_key_attributes = [
+{% for attr in lsi.non_key_attributes %}
+      "{{ attr }}",
+{% endfor %}
+    ]
+{% endif %}
+  }
+{% endfor %}
+{% endif %}
+
+{% if table.stream_enabled %}
+  stream_enabled   = true
+{% if table.stream_view_type %}
+  stream_view_type = "{{ table.stream_view_type }}"
+{% endif %}
+{% endif %}
+
+{% if table.ttl_attribute %}
+  ttl {
+    attribute_name = "{{ table.ttl_attribute }}"
+    enabled        = true
+  }
+{% endif %}
+
+{% if table.tags %}
+  tags = {
+{% for tag in table.tags %}
+    "{{ tag.key }}" = "{{ tag.value }}"
+{% endfor %}
+  }
+{% endif %}
+}

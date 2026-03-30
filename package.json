@@ -1,0 +1,6 @@
+{
+  "name": "tfkosmos",
+  "version": "0.1.0",
+  "description": "TFKosmos - Terraform Code Generator",
+  "private": true
+}

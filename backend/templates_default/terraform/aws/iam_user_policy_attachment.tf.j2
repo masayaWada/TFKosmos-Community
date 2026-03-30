@@ -1,0 +1,5 @@
+resource "aws_iam_user_policy_attachment" "{{ resource_name }}" {
+  user       = aws_iam_user.{{ user_resource_name }}.name
+  policy_arn = "{{ attachment.policy_arn }}"
+}
+

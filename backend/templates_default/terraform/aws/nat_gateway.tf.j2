@@ -1,0 +1,18 @@
+resource "aws_nat_gateway" "{{ resource_name }}" {
+{% if nat_gw.allocation_id %}
+  allocation_id = "{{ nat_gw.allocation_id }}"
+{% endif %}
+{% if nat_gw.subnet_id %}
+  subnet_id     = "{{ nat_gw.subnet_id }}"
+{% endif %}
+{% if nat_gw.connectivity_type %}
+  connectivity_type = "{{ nat_gw.connectivity_type }}"
+{% endif %}
+{% if nat_gw.tags %}
+  tags = {
+{% for key in nat_gw.tags %}
+    "{{ key }}" = "{{ nat_gw.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}

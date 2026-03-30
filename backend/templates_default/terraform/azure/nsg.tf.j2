@@ -1,0 +1,42 @@
+resource "azurerm_network_security_group" "{{ resource_name }}" {
+  name                = "{{ nsg.name }}"
+{% if nsg.resource_group %}
+  resource_group_name = "{{ nsg.resource_group }}"
+{% endif %}
+{% if nsg.location %}
+  location            = "{{ nsg.location }}"
+{% endif %}
+
+{% if nsg.security_rules %}
+{% for rule in nsg.security_rules %}
+  security_rule {
+    name                       = "{{ rule.name }}"
+    priority                   = {{ rule.priority }}
+    direction                  = "{{ rule.direction }}"
+    access                     = "{{ rule.access }}"
+    protocol                   = "{{ rule.protocol }}"
+{% if rule.source_port_range %}
+    source_port_range          = "{{ rule.source_port_range }}"
+{% endif %}
+{% if rule.destination_port_range %}
+    destination_port_range     = "{{ rule.destination_port_range }}"
+{% endif %}
+{% if rule.source_address_prefix %}
+    source_address_prefix      = "{{ rule.source_address_prefix }}"
+{% endif %}
+{% if rule.destination_address_prefix %}
+    destination_address_prefix = "{{ rule.destination_address_prefix }}"
+{% endif %}
+  }
+{% endfor %}
+{% endif %}
+
+{% if nsg.tags %}
+  tags = {
+{% for key in nsg.tags %}
+    "{{ key }}" = "{{ nsg.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

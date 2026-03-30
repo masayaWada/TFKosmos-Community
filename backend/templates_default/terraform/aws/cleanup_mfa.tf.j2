@@ -1,0 +1,5 @@
+resource "aws_iam_user_mfa_device" "{{ resource_name }}" {
+  user           = aws_iam_user.{{ user_resource_name }}.name
+  serial_number  = "{{ mfa_device.serial_number }}"
+}
+

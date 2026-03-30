@@ -1,0 +1,18 @@
+resource "azurerm_linux_function_app" "{{ resource_name }}" {
+  name                = "{{ func.name }}"
+{% if func.resource_group %}
+  resource_group_name = "{{ func.resource_group }}"
+{% endif %}
+{% if func.location %}
+  location            = "{{ func.location }}"
+{% endif %}
+{% if func.service_plan_id %}
+  service_plan_id     = "{{ func.service_plan_id }}"
+{% endif %}
+
+  site_config {
+  }
+
+  storage_account_name       = "REPLACE_ME"
+  storage_account_access_key = "REPLACE_ME"
+}

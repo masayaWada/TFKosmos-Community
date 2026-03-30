@@ -1,0 +1,10 @@
+{
+  "scan_id": "test-scan-azure-001",
+  "status": "completed",
+  "progress": 100,
+  "message": "スキャンが完了しました",
+  "summary": {
+    "role_assignments": 10,
+    "role_definitions": 5
+  }
+}

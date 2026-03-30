@@ -1,0 +1,12 @@
+resource "aws_iam_user" "{{ resource_name }}" {
+  name = "{{ user.user_name }}"
+  path = "{{ user.path }}"
+{% if user.tags %}
+  tags = {
+{% for key in user.tags %}
+    "{{ key }}" = "{{ user.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

@@ -1,0 +1,53 @@
+# CODEOWNERS
+#
+# このファイルは、プルリクエストのレビュアーを自動的に割り当てるためのものです。
+# 詳細: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# デフォルト（すべてのファイル）
+# * @wadamasaya
+
+# サブエージェント定義（重要）- チーム全員のレビュー必須
+/agents/ @wadamasaya
+/agents/subagents/ @wadamasaya
+/agents/prompts/ @wadamasaya
+/agents/templates/ @wadamasaya
+
+# Claude Code 設定ファイル - チーム全員のレビュー必須
+/.claude/ @wadamasaya
+/.claude/rules/ @wadamasaya
+/.claude/settings.json @wadamasaya
+
+# バックエンド（Rust）
+/backend/ @wadamasaya
+/backend/src/api/ @wadamasaya
+/backend/src/services/ @wadamasaya
+/backend/src/infra/ @wadamasaya
+/backend/src/domain/ @wadamasaya
+
+# フロントエンド（React/TypeScript）
+/frontend/ @wadamasaya
+/frontend/src/pages/ @wadamasaya
+/frontend/src/components/ @wadamasaya
+/frontend/src/api/ @wadamasaya
+
+# デプロイメント（Tauri）
+/deployment/ @wadamasaya
+
+# ドキュメント
+/docs/ @wadamasaya
+README.md @wadamasaya
+CLAUDE.md @wadamasaya
+
+# ビルド・CI/CD設定
+Makefile @wadamasaya
+dev.sh @wadamasaya
+/.github/ @wadamasaya
+
+# セキュリティ関連ファイル（特に重要）
+.gitignore @wadamasaya
+/.github/CODEOWNERS @wadamasaya
+
+# 注意:
+# - @wadamasaya を実際のチームメンバーのGitHubユーザー名に置き換えてください
+# - 複数のレビュアーが必要な場合、スペース区切りで追加: @user1 @user2
+# - チーム名を使用する場合: @org/team-name

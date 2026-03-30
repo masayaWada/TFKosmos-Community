@@ -1,0 +1,34 @@
+resource "aws_s3_bucket" "{{ resource_name }}" {
+  bucket = "{{ bucket.name }}"
+{% if bucket.tags %}
+  tags = {
+{% for key in bucket.tags %}
+    "{{ key }}" = "{{ bucket.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+
+{% if bucket.versioning %}
+resource "aws_s3_bucket_versioning" "{{ resource_name }}" {
+  bucket = aws_s3_bucket.{{ resource_name }}.id
+  versioning_configuration {
+    status = "{{ bucket.versioning }}"
+  }
+}
+{% endif %}
+
+{% if bucket.encryption %}
+resource "aws_s3_bucket_server_side_encryption_configuration" "{{ resource_name }}" {
+  bucket = aws_s3_bucket.{{ resource_name }}.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "{{ bucket.encryption.sse_algorithm }}"
+{% if bucket.encryption.kms_master_key_id %}
+      kms_master_key_id = "{{ bucket.encryption.kms_master_key_id }}"
+{% endif %}
+    }
+  }
+}
+{% endif %}
+

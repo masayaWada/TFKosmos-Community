@@ -1,0 +1,30 @@
+resource "aws_db_parameter_group" "{{ resource_name }}" {
+  name   = "{{ pg.db_parameter_group_name }}"
+{% if pg.family %}
+  family = "{{ pg.family }}"
+{% endif %}
+{% if pg.description %}
+  description = "{{ pg.description }}"
+{% endif %}
+
+{% if pg.parameters %}
+{% for param in pg.parameters %}
+  parameter {
+    name         = "{{ param.name }}"
+    value        = "{{ param.value }}"
+{% if param.apply_method %}
+    apply_method = "{{ param.apply_method }}"
+{% endif %}
+  }
+{% endfor %}
+{% endif %}
+
+{% if pg.tags %}
+  tags = {
+{% for key in pg.tags %}
+    "{{ key }}" = "{{ pg.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

@@ -1,0 +1,5 @@
+resource "aws_iam_group_policy_attachment" "{{ resource_name }}" {
+  group      = aws_iam_group.{{ group_resource_name }}.name
+  policy_arn = "{{ attachment.policy_arn }}"
+}
+

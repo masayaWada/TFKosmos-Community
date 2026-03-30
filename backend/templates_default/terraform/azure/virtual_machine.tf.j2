@@ -1,0 +1,121 @@
+{# Azure API / domain: os_type is "Linux" or "Windows" (case-insensitive). Default Linux for backward compatibility. #}
+{% set os_type = vm.os_type|default("Linux")|lower %}
+{% if os_type == "windows" %}
+resource "azurerm_windows_virtual_machine" "{{ resource_name }}" {
+  name                = "{{ vm.name }}"
+{% if vm.resource_group %}
+  resource_group_name = "{{ vm.resource_group }}"
+{% endif %}
+{% if vm.location %}
+  location            = "{{ vm.location }}"
+{% endif %}
+{% if vm.vm_size %}
+  size                = "{{ vm.vm_size }}"
+{% endif %}
+{% if vm.admin_username %}
+  admin_username      = "{{ vm.admin_username }}"
+{% endif %}
+{% if vm.admin_password %}
+  admin_password      = "{{ vm.admin_password }}"
+{% else %}
+  # Scans do not include VM passwords; set a valid value before apply or use a tfvars / Key Vault pattern.
+  admin_password      = "REPLACE_BEFORE_APPLY_Aa1!"
+{% endif %}
+
+{% if vm.network_interfaces %}
+  network_interface_ids = [
+{% for nic in vm.network_interfaces %}
+    "{{ nic }}",
+{% endfor %}
+  ]
+{% endif %}
+
+  os_disk {
+{% if vm.os_disk_type %}
+    storage_account_type = "{{ vm.os_disk_type }}"
+{% endif %}
+    caching              = "ReadWrite"
+  }
+
+{% if vm.image_reference %}
+  source_image_reference {
+{% if vm.image_reference.publisher %}
+    publisher = "{{ vm.image_reference.publisher }}"
+{% endif %}
+{% if vm.image_reference.offer %}
+    offer     = "{{ vm.image_reference.offer }}"
+{% endif %}
+{% if vm.image_reference.sku %}
+    sku       = "{{ vm.image_reference.sku }}"
+{% endif %}
+{% if vm.image_reference.version %}
+    version   = "{{ vm.image_reference.version }}"
+{% endif %}
+  }
+{% endif %}
+
+{% if vm.tags %}
+  tags = {
+{% for key in vm.tags %}
+    "{{ key }}" = "{{ vm.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+{% else %}
+resource "azurerm_linux_virtual_machine" "{{ resource_name }}" {
+  name                = "{{ vm.name }}"
+{% if vm.resource_group %}
+  resource_group_name = "{{ vm.resource_group }}"
+{% endif %}
+{% if vm.location %}
+  location            = "{{ vm.location }}"
+{% endif %}
+{% if vm.vm_size %}
+  size                = "{{ vm.vm_size }}"
+{% endif %}
+{% if vm.admin_username %}
+  admin_username      = "{{ vm.admin_username }}"
+{% endif %}
+
+{% if vm.network_interfaces %}
+  network_interface_ids = [
+{% for nic in vm.network_interfaces %}
+    "{{ nic }}",
+{% endfor %}
+  ]
+{% endif %}
+
+  os_disk {
+{% if vm.os_disk_type %}
+    storage_account_type = "{{ vm.os_disk_type }}"
+{% endif %}
+    caching              = "ReadWrite"
+  }
+
+{% if vm.image_reference %}
+  source_image_reference {
+{% if vm.image_reference.publisher %}
+    publisher = "{{ vm.image_reference.publisher }}"
+{% endif %}
+{% if vm.image_reference.offer %}
+    offer     = "{{ vm.image_reference.offer }}"
+{% endif %}
+{% if vm.image_reference.sku %}
+    sku       = "{{ vm.image_reference.sku }}"
+{% endif %}
+{% if vm.image_reference.version %}
+    version   = "{{ vm.image_reference.version }}"
+{% endif %}
+  }
+{% endif %}
+
+{% if vm.tags %}
+  tags = {
+{% for key in vm.tags %}
+    "{{ key }}" = "{{ vm.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+{% endif %}

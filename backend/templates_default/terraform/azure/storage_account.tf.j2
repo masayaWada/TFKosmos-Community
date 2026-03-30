@@ -1,0 +1,32 @@
+resource "azurerm_storage_account" "{{ resource_name }}" {
+  name                     = "{{ sa.name }}"
+{% if sa.resource_group %}
+  resource_group_name      = "{{ sa.resource_group }}"
+{% endif %}
+{% if sa.location %}
+  location                 = "{{ sa.location }}"
+{% endif %}
+{% if sa.sku_name %}
+  account_tier             = "{{ sa.sku_name.split('_')[0] if '_' in sa.sku_name else 'Standard' }}"
+  account_replication_type = "{{ sa.sku_name.split('_')[1] if '_' in sa.sku_name else 'LRS' }}"
+{% endif %}
+{% if sa.kind %}
+  account_kind             = "{{ sa.kind }}"
+{% endif %}
+{% if sa.access_tier %}
+  access_tier              = "{{ sa.access_tier }}"
+{% endif %}
+  https_traffic_only_enabled = {{ sa.https_only | lower }}
+{% if sa.minimum_tls_version %}
+  min_tls_version          = "{{ sa.minimum_tls_version }}"
+{% endif %}
+
+{% if sa.tags %}
+  tags = {
+{% for key in sa.tags %}
+    "{{ key }}" = "{{ sa.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

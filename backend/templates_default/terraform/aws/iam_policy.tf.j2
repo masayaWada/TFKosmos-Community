@@ -1,0 +1,94 @@
+{% if policy.statements %}
+# IAMポリシードキュメント（構造化形式）
+data "aws_iam_policy_document" "{{ resource_name }}" {
+{% if policy.policy_version %}
+  version = "{{ policy.policy_version }}"
+{% endif %}
+{% for statement in policy.statements %}
+  statement {
+{% if statement.sid %}
+    sid    = "{{ statement.sid }}"
+{% endif %}
+    effect = "{{ statement.effect }}"
+{% if statement.actions %}
+    actions = [
+{% for action in statement.actions %}
+      "{{ action | replace('${', '$${') }}",
+{% endfor %}
+    ]
+{% endif %}
+{% if statement.resources %}
+    resources = [
+{% for resource in statement.resources %}
+      "{{ resource | replace('${', '$${') }}",
+{% endfor %}
+    ]
+{% endif %}
+{% if statement.not_actions %}
+    not_actions = [
+{% for action in statement.not_actions %}
+      "{{ action | replace('${', '$${') }}",
+{% endfor %}
+    ]
+{% endif %}
+{% if statement.not_resources %}
+    not_resources = [
+{% for resource in statement.not_resources %}
+      "{{ resource | replace('${', '$${') }}",
+{% endfor %}
+    ]
+{% endif %}
+{% if statement.principal %}
+    principals {
+      # Note: Principalの構造は複雑なため、必要に応じてカスタマイズしてください
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+{% endif %}
+{% if statement.condition %}
+    # Note: Conditionの構造は複雑なため、必要に応じてカスタマイズしてください
+    # condition {
+    #   test     = "StringEquals"
+    #   variable = "aws:username"
+    #   values   = ["example"]
+    # }
+{% endif %}
+  }
+{% endfor %}
+}
+
+resource "aws_iam_policy" "{{ resource_name }}" {
+  name        = "{{ policy.policy_name }}"
+  path        = "{{ policy.path }}"
+  description = "{{ policy.policy_name }}"
+
+  policy = data.aws_iam_policy_document.{{ resource_name }}.json
+
+{% if policy.tags %}
+  tags = {
+{% for key in policy.tags %}
+    "{{ key }}" = "{{ policy.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+
+{% else %}
+# フォールバック: 構造化されていないポリシードキュメント（非推奨）
+resource "aws_iam_policy" "{{ resource_name }}" {
+  name        = "{{ policy.policy_name }}"
+  path        = "{{ policy.path }}"
+  description = "{{ policy.policy_name }}"
+
+  policy = jsonencode({{ policy.policy_document }})
+
+{% if policy.tags %}
+  tags = {
+{% for key in policy.tags %}
+    "{{ key }}" = "{{ policy.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+{% endif %}
+

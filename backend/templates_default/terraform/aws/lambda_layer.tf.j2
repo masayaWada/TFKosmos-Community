@@ -1,0 +1,13 @@
+resource "aws_lambda_layer_version" "{{ resource_name }}" {
+  layer_name = "{{ layer.layer_name }}"
+{% if layer.description %}
+  description = "{{ layer.description }}"
+{% endif %}
+{% if layer.compatible_runtimes %}
+  compatible_runtimes = [
+{% for runtime in layer.compatible_runtimes %}
+    "{{ runtime }}",
+{% endfor %}
+  ]
+{% endif %}
+}

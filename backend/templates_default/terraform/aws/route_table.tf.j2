@@ -1,0 +1,28 @@
+resource "aws_route_table" "{{ resource_name }}" {
+  vpc_id = "{{ rt.vpc_id }}"
+
+{% if rt.routes %}
+{% for route in rt.routes %}
+{% if route.destination_cidr_block and route.gateway_id %}
+  route {
+    cidr_block = "{{ route.destination_cidr_block }}"
+    gateway_id = "{{ route.gateway_id }}"
+  }
+{% elif route.destination_cidr_block and route.nat_gateway_id %}
+  route {
+    cidr_block     = "{{ route.destination_cidr_block }}"
+    nat_gateway_id = "{{ route.nat_gateway_id }}"
+  }
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if rt.tags %}
+  tags = {
+{% for key in rt.tags %}
+    "{{ key }}" = "{{ rt.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+

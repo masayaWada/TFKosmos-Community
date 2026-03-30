@@ -1,0 +1,12 @@
+resource "aws_sns_topic" "{{ resource_name }}" {
+{% if topic.display_name %}
+  display_name = "{{ topic.display_name }}"
+{% endif %}
+{% if topic.tags %}
+  tags = {
+{% for tag in topic.tags %}
+    "{{ tag.key }}" = "{{ tag.value }}"
+{% endfor %}
+  }
+{% endif %}
+}

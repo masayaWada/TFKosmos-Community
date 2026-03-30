@@ -1,0 +1,38 @@
+resource "azurerm_virtual_network" "{{ resource_name }}" {
+  name                = "{{ vnet.name }}"
+{% if vnet.resource_group %}
+  resource_group_name = "{{ vnet.resource_group }}"
+{% endif %}
+{% if vnet.location %}
+  location            = "{{ vnet.location }}"
+{% endif %}
+{% if vnet.address_space %}
+  address_space       = [
+{% for cidr in vnet.address_space %}
+    "{{ cidr }}",
+{% endfor %}
+  ]
+{% endif %}
+
+{% if vnet.tags %}
+  tags = {
+{% for key in vnet.tags %}
+    "{{ key }}" = "{{ vnet.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}
+
+{% if vnet.subnets %}
+{% for subnet in vnet.subnets %}
+resource "azurerm_subnet" "{{ resource_name }}_{{ subnet.name }}" {
+  name                 = "{{ subnet.name }}"
+  resource_group_name  = azurerm_virtual_network.{{ resource_name }}.resource_group_name
+  virtual_network_name = azurerm_virtual_network.{{ resource_name }}.name
+{% if subnet.address_prefix %}
+  address_prefixes     = ["{{ subnet.address_prefix }}"]
+{% endif %}
+}
+{% endfor %}
+{% endif %}
+

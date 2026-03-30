@@ -1,0 +1,41 @@
+resource "aws_cloudwatch_metric_alarm" "{{ resource_name }}" {
+  alarm_name          = "{{ alarm.alarm_name }}"
+{% if alarm.metric_name %}
+  metric_name         = "{{ alarm.metric_name }}"
+{% endif %}
+{% if alarm.namespace %}
+  namespace           = "{{ alarm.namespace }}"
+{% endif %}
+{% if alarm.statistic %}
+  statistic           = "{{ alarm.statistic }}"
+{% endif %}
+{% if alarm.period %}
+  period              = {{ alarm.period }}
+{% endif %}
+{% if alarm.evaluation_periods %}
+  evaluation_periods  = {{ alarm.evaluation_periods }}
+{% endif %}
+{% if alarm.threshold %}
+  threshold           = {{ alarm.threshold }}
+{% endif %}
+{% if alarm.comparison_operator %}
+  comparison_operator = "{{ alarm.comparison_operator }}"
+{% endif %}
+{% if alarm.alarm_description %}
+  alarm_description   = "{{ alarm.alarm_description }}"
+{% endif %}
+{% if alarm.alarm_actions %}
+  alarm_actions = [
+{% for action in alarm.alarm_actions %}
+    "{{ action }}",
+{% endfor %}
+  ]
+{% endif %}
+{% if alarm.ok_actions %}
+  ok_actions = [
+{% for action in alarm.ok_actions %}
+    "{{ action }}",
+{% endfor %}
+  ]
+{% endif %}
+}

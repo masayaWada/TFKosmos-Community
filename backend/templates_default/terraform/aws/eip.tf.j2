@@ -1,0 +1,18 @@
+resource "aws_eip" "{{ resource_name }}" {
+{% if eip.domain %}
+  domain = "{{ eip.domain }}"
+{% endif %}
+{% if eip.instance_id %}
+  instance = "{{ eip.instance_id }}"
+{% endif %}
+{% if eip.network_interface_id %}
+  network_interface = "{{ eip.network_interface_id }}"
+{% endif %}
+{% if eip.tags %}
+  tags = {
+{% for key in eip.tags %}
+    "{{ key }}" = "{{ eip.tags[key] }}"
+{% endfor %}
+  }
+{% endif %}
+}

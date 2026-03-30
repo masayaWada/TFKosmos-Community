@@ -1,0 +1,60 @@
+name: "Agent Tests"
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '.claude/agents/**'
+      - 'scripts/**'
+      - '.github/workflows/agent-tests.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - '.claude/agents/**'
+      - 'scripts/**'
+      - '.github/workflows/agent-tests.yml'
+
+jobs:
+  test-git-smart-commit:
+    name: Test git-smart-commit Agent
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "CI Test Bot"
+          git config --global user.email "ci@example.com"
+
+      - name: Run git-smart-commit tests
+        run: |
+          chmod +x .claude/agents/subagents/git-smart-commit/test.sh
+          .claude/agents/subagents/git-smart-commit/test.sh
+
+      - name: Test result summary
+        if: always()
+        run: |
+          echo "### Agent Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ git-smart-commit agent tests completed" >> $GITHUB_STEP_SUMMARY
+
+  # 将来的に他のエージェントのテストを追加する場合はここに追加
+  # test-terraform-validator:
+  #   name: Test terraform-validator Agent
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v6
+  #     - name: Run terraform-validator tests
+  #       run: .claude/agents/subagents/terraform-validator/test.sh
+
+  # test-doc-generator:
+  #   name: Test doc-generator Agent
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v6
+  #     - name: Run doc-generator tests
+  #       run: .claude/agents/subagents/doc-generator/test.sh
