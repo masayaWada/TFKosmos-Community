@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
@@ -58,7 +58,7 @@ jobs:
             --ignore-filename-regex 'real_.*_client\.rs|real_azure_client\.rs|client_factory\.rs|main\.rs'
 
       - name: Upload backend coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           files: ./backend/lcov.info
           flags: backend
